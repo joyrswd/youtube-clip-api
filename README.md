@@ -27,27 +27,24 @@ graph TB
         ~~~ChannelB
         ~~~ChannelC
     end
-    B(PHP crawler)
-    C[(MeiliSearch)]
-    D[(MariaDB)]
-    E(PHP importer)
-    F(PHP API)
-    G(Vue page)
-    H(nginx web)
+    B(PHP batch)
+    C[(MariaDB)]
+    D[(MeiliSearch)]
+    E(PHP API)
+    F(Vue page)
+    G(nginx web)
     B --> Youtube
     B --> C
-    E --> C
+    B --> D
     E --> D
-    F --> D
-    F ---> C
-    H --> G 
-    H --> F
+    E ---> C
+    G --> E 
+    G --> F
 ```
 
 ##　今後の大まかな予定
-- crawler開発
+- batch開発
 - MariaDB設計
-- importer開発
 - API開発
 - フロント（Vue）開発
 
