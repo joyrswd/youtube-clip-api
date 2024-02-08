@@ -11,6 +11,17 @@ class Video extends Model
 {
     use HasFactory, SoftDeletes, Searchable;
 
+
+    protected $fillable = [
+        'title',
+        'description',
+        'youtube_id',
+        'channel_id',
+        'duration',
+        'published_at',
+        'etag',
+    ];
+
     public function channel()
     {
         return $this->belongsTo(Channel::class);
