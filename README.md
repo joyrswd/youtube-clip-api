@@ -1,9 +1,10 @@
-# Youtube search(仮)
+# Youtube クリップ （サーバーサイド）
 
 ## 概要
 
 特定のYoutubeチャンネルの動画情報を収集し、
-本家よりも検索しやすサイトを構築する。
+本家よりも検索しやすサイトを構築する。  
+こちらは動画情報収集用リポジトリ
 
 ## 特徴
 
@@ -21,7 +22,7 @@
 ## システム構成  
 
 ```mermaid
-graph TB
+graph LR
     subgraph Youtube
         ChannelA
         ~~~ChannelB
@@ -31,14 +32,16 @@ graph TB
     C[(MariaDB)]
     D[(MeiliSearch)]
     E(PHP API)
-    F(Vue page)
-    G(nginx web)
+    subgraph web[Front（IPFS予定）]
+        F(Vue + HTML + CSS)
+    end
+    G(Node.js)
     B --> Youtube
     B --> C
     B --> D
-    E --> D
-    E ---> C
-    G --> E 
+    E --> C
+    F -->|動画情報| D
+    F -->|ユーザー情報| E
     G --> F
 ```
 

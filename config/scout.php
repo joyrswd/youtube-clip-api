@@ -29,7 +29,8 @@ return [
     |
     */
 
-    'prefix' => env('SCOUT_PREFIX', ''),
+    //'prefix' => env('SCOUT_PREFIX', ''),
+    'prefix' => (env('APP_ENV') === 'testing') ? 'testing_' : '',
 
     /*
     |--------------------------------------------------------------------------

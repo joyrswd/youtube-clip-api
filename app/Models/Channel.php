@@ -10,6 +10,8 @@ class Channel extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $fillable = ['title'];
+
     public function videos()
     {
         return $this->hasMany(Video::class);
