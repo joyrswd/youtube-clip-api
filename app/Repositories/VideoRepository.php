@@ -23,7 +23,6 @@ class VideoRepository
     private function convertToTime(string $iso8601): int
     {
         $interval = new \DateInterval($iso8601);
-        return $interval->h * 3600 + $interval->i * 60 + $interval->s;
         return ($interval->d * 24 * 60 * 60) +
             ($interval->h * 60 * 60) +
             ($interval->i * 60) +

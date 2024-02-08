@@ -19,6 +19,7 @@ class ChannelFactory extends Factory
         return [
             'title' => $this->faker->name,
             'youtube_id' => $this->faker->uuid,
+            'deleted_at' => null,
         ];
     }
 }
