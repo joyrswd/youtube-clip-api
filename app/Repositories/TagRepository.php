@@ -14,7 +14,10 @@ class TagRepository
             $tag->name = $tagName;
             $tag->save();
         }
-        $tag->videos()->attach($videoId);
+        //すでに割り当て済みの場合は何もしない
+        if ($tag->videos()->where('video_id', $videoId)->exists() === false) {
+            $tag->videos()->attach($videoId);
+        }
         return $tag->id;
     }
 

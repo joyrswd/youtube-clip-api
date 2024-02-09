@@ -2,86 +2,57 @@
 
 namespace App\Services;
 
-use Google\Client;
-use Google\Service\YouTube;
-use Google\Service\YouTube\Video;
+use App\Repositories\YoutubeChannelRepository;
+use App\Repositories\YoutubeSearchRepository;
+use App\Repositories\YoutubeVideoRepository;
 
 class YoutubeService
 {
 
-    private string $apiKey;
-    private YouTube $api;
-    private array $listParts = ['snippet', 'contentDetails'];
+    private YoutubeChannelRepository $channels;
+    private YoutubeSearchRepository $search;
+    private YoutubeVideoRepository $videos;
 
-    public function __construct()
+    public function __construct(YoutubeChannelRepository $channels, YoutubeSearchRepository $search, YoutubeVideoRepository $video)
     {
-        $this->apiKey = env('YOUTUBE_API_KEY');
-        $this->api = $this->connectYoutubeAPI();
-    }
-
-    private function connectYoutubeAPI(): YouTube
-    {
-        //YoutubeAPIに接続する処理
-        $client = new Client();
-        $client->setApplicationName("Youtube Crawler");
-        $client->setDeveloperKey($this->apiKey);
-        return new YouTube($client);
+        $this->channels = $channels;
+        $this->search = $search;
+        $this->videos = $video;
     }
 
     public function getChannelTitleById(string $youtubeId): ?string
     {
-        //YoutubeAPIからチャンネル情報を取得する処理
-        $response = $this->api->channels->listChannels('snippet, contentDetails', ['id' => $youtubeId]);
-        $items = $response->getItems();
+        $channel = $this->channels->getChannelById($youtubeId);
+        $items = $this->channels->getItems($channel);
         if (empty($items)) {
             return null;
         }
-        $channel = $items[0];
-        return $channel->getSnippet()->getTitle();
+        $snippet = $this->channels->getSnippet($items);
+        return $this->channels->getSnippetTitle($snippet);
     }
 
     public function findVideoIds(string $id, ?string $token = null) : array
     {
-        $items = [];
-        $params = [
-            'channelId' => $id,
-            'order' => 'date',
-            'type' => 'video',
-            'maxResults' => 50,
-        ];
-        if ($token) {
-            $params['pageToken'] = $token;
+        $ids = [];
+        $response = $this->search->listSearch($id, $token);
+        $items = $this->search->getItems($response);
+        foreach ($items as $item) {
+            $resource = $this->search->getId($item);
+            $ids[] = $this->search->getVideoId($resource);
         }
-        $response = $this->api->search->listSearch('id', $params);
-        $token = $response->getNextPageToken();
-        foreach ($response->getItems() as $item) {
-            $items[] = $item->getId()->getVideoId();
-        }
-        return [$items, $token];
+        $token = $this->search->getPageToken($response);
+        return [$ids, $token];
     }
 
-    public function findVideInfoByIds(array $ids): array
+    public function findVideInfoByIds(array $ids, string $channelId): array
     {
-        $params = [
-            'id' => implode(',', $ids),
-        ];
-        $response = $this->api->videos->listVideos($this->listParts, $params);
-        return $response->getItems();
-    }
-
-    public function convertToVideoRecord(Video $item, int $channelId): array
-    {
-        $object = $item->toSimpleObject();
-        return [
-            'channel_id' => $channelId,
-            'youtube_id' => $object->id,
-            'etag' => $object->etag,
-            'title' => $object->snippet->title,
-            'description' => $object->snippet->description,
-            'duration' => $object->contentDetails->duration,
-            'published_at' => new \Datetime($object->snippet->publishedAt),
-            'tags' => property_exists($object->snippet, 'tags') ? $object->snippet->tags : [],
-        ];
+        $videos = [];
+        $response = $this->videos->listVideos($ids);
+        $items = $this->videos->getItems($response);
+        foreach ($items as $item) {
+            $videos[] = $this->videos->convertToVideoRecord($item, $channelId);
+        }
+        return $videos;
     }
 
 }
