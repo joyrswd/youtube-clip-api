@@ -69,10 +69,15 @@ class AddChannelBatch extends Command
 
     private function setUpChannelInfo() : ?string
     {
-        if(($channelId = $this->askChannelId())
-            && ($channelName = $this->findChannelInfo($channelId))
-            && $this->confirm('『' . $channelName . '』を登録します。よろしいですか？')) {
-            $this->channelService->upsert($channelId, $channelName);
+        $channelId = $this->askChannelId();
+        if (empty($channelId)) {
+            return null;
+        }
+        if (($channel = $this->channelService->findByYoutubeId($channelId))) {
+            return $this->confirm('『' . $channel['title'] . '』は登録されています。再登録しますか？') ? $channelId : null;
+        } elseif (($channelName = $this->findChannelInfo($channelId))
+            && $this->confirm('『' . $channelName . '』を登録しますか？')) {
+            $this->channelService->create($channelId, $channelName);
             return $channelId;
         } else {
             return null;
@@ -91,10 +96,6 @@ class AddChannelBatch extends Command
 
     private function findChannelInfo(string $id): ?string
     {
-        //既存のチャンネルか確認
-        if ($row = $this->channelService->findByYoutubeId($id)) {
-            return $row['title'];
-        }
         //チャンネル情報を取得する処理
         $channelTitle = $this->youtubeService->getChannelTitleById($id);
         if (empty($channelTitle)) {
@@ -111,17 +112,17 @@ class AddChannelBatch extends Command
         $itemCount = 0;
         do {
             [$ids, $token] = $this->youtubeService->findVideoIds($channel['youtube_id'], $nextToken);
-            $items = $this->fetchVideoData($ids, $channel['id']);
+            $videos = $this->youtubeService->findVideoInfoByIds($ids, $channel['id']);
+            $items = $this->fetchVideoData($videos);
             $itemCount += count($items);
             $this->info('取得件数: ' . $itemCount);
         } while ($nextToken = $token);
         return $itemCount;
     }
 
-    private function fetchVideoData(array $ids, int $channelId)
+    private function fetchVideoData(array $videos)
     {
         $items = [];
-        $videos = $this->youtubeService->findVideInfoByIds($ids, $channelId);
         foreach ($videos as $video) {
             $videoId = $this->videoService->upsert($video);
             if (empty($video['tags']) === false) {
