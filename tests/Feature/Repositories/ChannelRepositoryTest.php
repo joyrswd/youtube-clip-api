@@ -56,4 +56,21 @@ class ChannelRepositoryTest extends TestCase
         $this->assertEquals([], $channel);
     }
 
+    /**
+     * @test
+     */
+    public function updateByYoutubeId_チャンネルを更新する()
+    {
+        $channelRepository = new ChannelRepository();
+        $channelId = $channelRepository->updateByYoutubeId($this->channel->youtube_id, [
+            'title' => 'updated_title',
+        ]);
+        $this->assertDatabaseHas('channels', [
+            'id' => $channelId,
+            'youtube_id' => $this->channel->youtube_id,
+            'title' => 'updated_title',
+        ]);
+        $this->assertEquals($this->channel->id, $channelId);
+    }
+
 }

@@ -39,19 +39,23 @@ class Video extends Model
             'url' => 'https://www.youtube.com/watch?v=' . $this->youtube_id,
             'thumbnail' => 'https://i.ytimg.com/vi/' . $this->youtube_id . '/default.jpg',
             'title' => $this->title,
-            'description' => $this->trimUrl($this->description),
+            'description' => $this->sanitizeText($this->description),
             'channel' => $this->channel->title,
             'tags' => $this->tags->pluck('name'),
             'duration' => $this->duration,
             'time'  => $this->convertToTime($this->duration),
-            'published_at' => $this->published_at,
-            'timesatmp' => strtotime($this->published_at),
+            'published_at' => $this->published_at->format('Y-m-d H:i:s'),
+            'timesatmp' => $this->published_at->getTimeStamp(),
         ];
     }
 
-    private function trimUrl(string $description) : string
+    private function sanitizeText(string $description) : string
     {
-        return preg_replace('/[^\n]*(?:https?|ftp):\/\/\S+/', '', $description);
+        //URLを削除
+        $noUrl = preg_replace('/[^\n]*(?:https?|ftp):\/\/\S+/', '', $description);
+        //メールアドレスを削除
+        $noMail = preg_replace('/[^\n]*\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i', '', $noUrl);
+        return $noMail;
     }
 
     private function convertToTime($duration)

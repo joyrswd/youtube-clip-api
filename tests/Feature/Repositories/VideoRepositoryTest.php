@@ -45,7 +45,7 @@ class VideoRepositoryTest extends TestCase
             'title' => 'new_title',
             'description' => 'new_description',
             'duration' => 'PT1H1M1S',
-            'published_at' => '2021-01-01 00:00:00',
+            'published_at' => new \DateTime('2021-01-01 00:00:00'),
         ]);
         $this->assertDatabaseHas('videos', [
             'id' => $videoId,
@@ -95,5 +95,51 @@ class VideoRepositoryTest extends TestCase
         $this->assertEquals(86400, $result);
     }
     
+    /**
+     * @test
+     */
+    public function findByYoutubeId_YouTubeの動画IDから動画を取得する()
+    {
+        $videoRepository = new VideoRepository();
+        $result = $videoRepository->findByYoutubeId($this->video->youtube_id);
+        $this->assertEquals($this->video->id, $result['id']);
+    }
+
+    /**
+     * @test
+     */
+    public function findByYoutubeId_YouTubeの動画IDから動画を取得する_存在しない場合()
+    {
+        $videoRepository = new VideoRepository();
+        $result = $videoRepository->findByYoutubeId('not_exist_youtube_id');
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * @test
+     */
+    public function updateByYoutubeId_動画を更新する()
+    {
+        $videoRepository = new VideoRepository();
+        $videoId = $videoRepository->updateByYoutubeId($this->video->youtube_id, [
+            'channel_id' => $this->channel->id,
+            'title' => 'updated_title',
+            'etag' => 'updated_etag',
+            'description' => 'updated_description',
+            'duration' => 'PT1H1M1S',
+            'published_at' => new \DateTime('2021-01-01 00:00:00'),
+        ]);
+        $this->assertDatabaseHas('videos', [
+            'id' => $videoId,
+            'channel_id' => $this->channel->id,
+            'youtube_id' => $this->video->youtube_id,
+            'etag' => 'updated_etag',
+            'title' => 'updated_title',
+            'description' => 'updated_description',
+            'duration' => 3661,
+            'published_at' => '2021-01-01 00:00:00',
+        ]);
+        $this->assertEquals($this->video->id, $videoId);
+    }
 
 }

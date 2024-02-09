@@ -52,7 +52,7 @@ class VideoModelTest extends TestCase
             'youtube_id' => 'Updated Channel Youtube ID',
             'etag' => 'Updated Channel Etag',
             'duration' => 100,
-            'published_at' => now(),
+            'published_at' => new \DateTime(),
         ];
 
         $video->update($updatedChannelData);
@@ -158,7 +158,7 @@ class VideoModelTest extends TestCase
             'youtube_id' => 'Video Youtube ID',
             'etag' => 'Video Etag',
             'duration' => 100,
-            'published_at' => '2021-01-01 00:00:00',
+            'published_at' => new \DateTime('2021-01-01 00:00:00'),
             'channel_id' => $this->channel->id,
         ];
         $video = Video::factory()->create($data);
@@ -175,8 +175,8 @@ class VideoModelTest extends TestCase
         $this->assertEquals($this->channel->title, $searchable['channel']);
         $this->assertEquals($data['duration'], $searchable['duration']);
         $this->assertEquals('01:40', $searchable['time']);
-        $this->assertEquals($data['published_at'], $searchable['published_at']);
-        $this->assertEquals(strtotime($data['published_at']), $searchable['timesatmp']);
+        $this->assertEquals($data['published_at']->format('Y-m-d H:i:s'), $searchable['published_at']);
+        $this->assertEquals($data['published_at']->getTimeStamp(), $searchable['timesatmp']);
         $this->assertEquals(collect([$tag->name]), $searchable['tags']);
     }
 

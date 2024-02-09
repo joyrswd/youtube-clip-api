@@ -15,10 +15,23 @@ class ChannelRepository
         return $channel->id;
     }
 
+    public function updateByYoutubeId(string $channelId, array $data): int
+    {
+        $channel = $this->getByYoutubeId($channelId);
+        $channel->title = $data['title'];
+        $channel->save();
+        return $channel->id;
+    }
+
     public function findByYoutubeId(string $youtubeId):array
     {
-        $record = Channel::where('youtube_id', $youtubeId)->first();
+        $record = $this->getByYoutubeId($youtubeId);
         return empty($record) ? [] : $record->toArray();
+    }
+
+    private function getByYoutubeId(string $youtubeId): ?Channel
+    {
+        return Channel::where('youtube_id', $youtubeId)->first();
     }
 
 }

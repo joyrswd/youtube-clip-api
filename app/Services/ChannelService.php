@@ -23,6 +23,24 @@ class ChannelService
         return $channelId;
     }
 
+    public function update(string $youtbeId, string $title): int
+    {
+        $channelId = $this->channelRepository->updateByYoutubeId($youtbeId, [
+            'title' => $title,
+        ]);
+        return $channelId;
+    }
+
+    public function upsert(string $channelId, string $title): int
+    {
+        $channel = $this->findByYoutubeId($channelId);
+        if (empty($channel)) {
+            return $this->create($channelId, $title);
+        } else {
+            return $this->update($channelId, $title);
+        }
+    }
+
     public function findByYoutubeId(string $youtubeId): array
     {
         return $this->channelRepository->findByYoutubeId($youtubeId);
