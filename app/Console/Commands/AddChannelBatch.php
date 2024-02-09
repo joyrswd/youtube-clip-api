@@ -57,7 +57,12 @@ class AddChannelBatch extends Command
             $this->info('処理はキャンセルされました。');
             return false;
         }
-        $total = $this->saveAllVideos($channelId);
+        try {
+            $total = $this->saveAllVideos($channelId);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+            return false;
+        }
         $this->info($total . '件の動画情報を保存しました。');
         return true;
     }
@@ -67,7 +72,7 @@ class AddChannelBatch extends Command
         if(($channelId = $this->askChannelId())
             && ($channelName = $this->findChannelInfo($channelId))
             && $this->confirm('『' . $channelName . '』を登録します。よろしいですか？')) {
-            $this->channelService->create($channelId, $channelName);
+            $this->channelService->upsert($channelId, $channelName);
             return $channelId;
         } else {
             return null;
@@ -88,8 +93,7 @@ class AddChannelBatch extends Command
     {
         //既存のチャンネルか確認
         if ($row = $this->channelService->findByYoutubeId($id)) {
-            $this->error("『{$row['title']}』は既に登録されています");
-            return null;
+            return $row['title'];
         }
         //チャンネル情報を取得する処理
         $channelTitle = $this->youtubeService->getChannelTitleById($id);
@@ -119,7 +123,7 @@ class AddChannelBatch extends Command
         $items = [];
         $videos = $this->youtubeService->findVideInfoByIds($ids, $channelId);
         foreach ($videos as $video) {
-            $videoId = $this->videoService->create($video);
+            $videoId = $this->videoService->upsert($video);
             if (empty($video['tags']) === false) {
                 $this->tagService->addTags($video['tags'], $videoId);
             }

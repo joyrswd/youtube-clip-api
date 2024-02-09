@@ -57,4 +57,17 @@ class TagRepositoryTest extends TestCase
         $this->assertEquals($this->tag->id, $tagId);
     }
 
+    /**
+     * @test
+     */
+    public function clear_動画に紐づくタグが全て削除される()
+    {
+        $tagRepository = new TagRepository();
+        $tagRepository->clear($this->video->id);
+        $this->assertDatabaseMissing('tag_video', [
+            'tag_id' => $this->tag->id,
+            'video_id' => $this->video->id,
+        ]);
+    }
+
 }

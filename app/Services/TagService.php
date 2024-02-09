@@ -16,6 +16,7 @@ class TagService
 
     public function addTags(array $items, int $videoId) : void
     {
+        $this->tagRepository->clear($videoId);
         foreach ($items as $tag) {
             $this->tagRepository->store($tag, $videoId);
         }

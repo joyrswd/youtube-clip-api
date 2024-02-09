@@ -45,4 +45,48 @@ class ChannelServiceTest extends TestCase
         $this->assertEmpty($channel);
     }
     
+    /**
+     * @test
+     */
+    public function update_チャンネルが更新される()
+    {
+        $channelService = app(ChannelService::class);
+        $channelId = $channelService->create('new_channel_id', '新しいチャンネル');
+        $channelService->update('new_channel_id', 'updated_title');
+        $this->assertDatabaseHas('channels', [
+            'id' => $channelId,
+            'youtube_id' => 'new_channel_id',
+            'title' => 'updated_title',
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function upsert_チャンネルが新規登録される()
+    {
+        $channelService = app(ChannelService::class);
+        $channelId = $channelService->upsert('new_channel_id', '新しいチャンネル');
+        $this->assertDatabaseHas('channels', [
+            'id' => $channelId,
+            'youtube_id' => 'new_channel_id',
+            'title' => '新しいチャンネル',
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function upsert_チャンネルが更新される()
+    {
+        $channelService = app(ChannelService::class);
+        $channelId = $channelService->create('new_channel_id', '新しいチャンネル');
+        $channelService->upsert('new_channel_id', 'updated_title');
+        $this->assertDatabaseHas('channels', [
+            'id' => $channelId,
+            'youtube_id' => 'new_channel_id',
+            'title' => 'updated_title',
+        ]);
+    }
+
 }

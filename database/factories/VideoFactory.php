@@ -20,7 +20,7 @@ class VideoFactory extends Factory
             'title' => $this->faker->name,
             'youtube_id' => $this->faker->uuid,
             'description' => $this->faker->text,
-            'published_at' => $this->faker->dateTime->format('Y-m-d H:i:s'),
+            'published_at' => $this->faker->dateTime,
             'etag' => $this->faker->uuid,
             'duration' => $this->faker->randomNumber(),
         ];
