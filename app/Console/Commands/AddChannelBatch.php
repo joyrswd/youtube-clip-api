@@ -117,14 +117,13 @@ class AddChannelBatch extends Command
     private function fetchVideoData(array $ids, int $channelId)
     {
         $items = [];
-        $videos = $this->youtubeService->findVideInfoByIds($ids);
+        $videos = $this->youtubeService->findVideInfoByIds($ids, $channelId);
         foreach ($videos as $video) {
-            $item = $this->youtubeService->convertToVideoRecord($video, $channelId);
-            $videId = $this->videoService->create($item);
-            if (empty($item['tags']) === false) {
-                $this->tagService->addTags($item['tags'], $videId);
+            $videoId = $this->videoService->create($video);
+            if (empty($video['tags']) === false) {
+                $this->tagService->addTags($video['tags'], $videoId);
             }
-            $items[] = $videId;
+            $items[] = $videoId;
         }
         return $items;
     }
