@@ -44,7 +44,7 @@ class YoutubeService
         return [$ids, $token];
     }
 
-    public function findVideInfoByIds(array $ids, string $channelId): array
+    public function findVideoInfoByIds(array $ids, string $channelId): array
     {
         $videos = [];
         $response = $this->videos->listVideos($ids);
