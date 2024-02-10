@@ -45,4 +45,9 @@ class ChannelService
     {
         return $this->channelRepository->findByYoutubeId($youtubeId);
     }
+
+    public function getAllChannels(): array
+    {
+        return $this->channelRepository->getAll();
+    }
 }

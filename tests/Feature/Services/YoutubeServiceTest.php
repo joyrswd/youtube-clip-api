@@ -52,7 +52,7 @@ class YoutubeServiceTest extends TestCase
     public function findVideoIds()
     {
         $this->search->shouldReceive('listSearch')
-            ->with('someChannelId', 'token')
+            ->with('someChannelId', [], 'token')
             ->andReturn(Mockery::mock(\Google\Service\YouTube\SearchListResponse::class));
         $this->search->shouldReceive('getPageToken')
             ->andReturn('token2');
@@ -63,7 +63,7 @@ class YoutubeServiceTest extends TestCase
         $this->search->shouldReceive('getVideoId')
             ->andReturn('someVideoId');
         $youtube = new YoutubeService($this->channel, $this->search, $this->video);
-        $result = $youtube->findVideoIds('someChannelId', 'token');
+        $result = $youtube->findVideoIds('someChannelId', [], 'token');
         $this->assertEquals([['someVideoId'], 'token2'], $result);
     }
 

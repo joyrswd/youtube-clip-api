@@ -52,10 +52,11 @@ class VideoModelTest extends TestCase
             'youtube_id' => 'Updated Channel Youtube ID',
             'etag' => 'Updated Channel Etag',
             'duration' => 100,
-            'published_at' => new \DateTime(),
+            'published_at' => new \DateTime('2021-01-01 00:00:00'),
         ];
 
         $video->update($updatedChannelData);
+        $video->refresh();
 
         $this->assertEquals($updatedChannelData['title'], $video->title);
         $this->assertEquals($updatedChannelData['description'], $video->description);
@@ -178,6 +179,17 @@ class VideoModelTest extends TestCase
         $this->assertEquals($data['published_at']->format('Y-m-d H:i:s'), $searchable['published_at']);
         $this->assertEquals($data['published_at']->getTimeStamp(), $searchable['timesatmp']);
         $this->assertEquals(collect([$tag->name]), $searchable['tags']);
+    }
+
+    /**
+     * @test
+     */
+    public function 追加_channelのnew_stocked_atが更新される()
+    {
+        $video = Video::factory()->create(['channel_id' => $this->channel->id, 'published_at' => new \DateTime('2021-01-01 00:00:00')]);
+        $video2 = Video::factory()->create(['channel_id' => $this->channel->id, 'published_at' => new \DateTime('2021-01-02 00:00:00')]);
+        $this->channel->refresh();
+        $this->assertEquals($video2->published_at, new \DateTime($this->channel->new_stocked_at));
     }
 
 }

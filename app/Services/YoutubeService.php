@@ -31,10 +31,13 @@ class YoutubeService
         return $this->channels->getSnippetTitle($snippet);
     }
 
-    public function findVideoIds(string $id, ?string $token = null) : array
+    public function findVideoIds(string $id, ?array $conditions = [], ?string $token = null) : array
     {
         $ids = [];
-        $response = $this->search->listSearch($id, $token);
+        $response = $this->search->listSearch($id, $conditions, $token);
+        if (empty($response)) {
+            return [$ids, null];
+        }
         $items = $this->search->getItems($response);
         foreach ($items as $item) {
             $resource = $this->search->getId($item);

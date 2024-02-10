@@ -45,6 +45,25 @@ class YoutubeSearchRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function listSearchWithPulishedAtCondition()
+    {
+        $this->youtube->search->shouldReceive('listSearch')
+            ->andReturnUsing(function ($id, $params) {
+                // publishedAfterが2021-01-01 00:00:00以降の場合はSearchListResponseを返す
+                if ($params['publishedAfter'] > new \DateTime('2021-01-01 00:00:00')) {
+                    return Mockery::mock(SearchListResponse::class);
+                } else {
+                    return null;
+                }
+            });
+        $search = new YoutubeSearchRepository($this->youtube);
+        $result = $search->listSearch('someChannelId', ['publishedAfter' => new \DateTime('2021-01-02 00:00:00')]);
+        $this->assertInstanceOf(SearchListResponse::class, $result);
+    }
+
+    /**
+     * @test
+     */
     public function getPageToken()
     {
         $searchListResponse = Mockery::mock(SearchListResponse::class);
