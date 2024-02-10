@@ -29,7 +29,7 @@ class AddChannelBatchTest extends TestCase
             });
         // findVideoIdsをモック
         $youtubeService->shouldReceive('findVideoIds')
-            ->with('channel_id', null)
+            ->with('channel_id', [], null)
             ->andReturn([['video_id1', 'video_id2'], null]);
         // findVideoInfoByIdsをモック
         $youtubeService->shouldReceive('findVideoInfoByIds')

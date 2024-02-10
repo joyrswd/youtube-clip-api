@@ -20,6 +20,7 @@ class ChannelFactory extends Factory
             'title' => $this->faker->name,
             'youtube_id' => $this->faker->uuid,
             'deleted_at' => null,
+            'new_stocked_at' => null,
         ];
     }
 }

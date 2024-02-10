@@ -34,4 +34,9 @@ class ChannelRepository
         return Channel::where('youtube_id', $youtubeId)->first();
     }
 
+    public function getAll(): array
+    {
+        return Channel::all()->toArray();
+    }
+
 }

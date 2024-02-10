@@ -111,7 +111,10 @@ class AddChannelBatch extends Command
         $nextToken = null;
         $itemCount = 0;
         do {
-            [$ids, $token] = $this->youtubeService->findVideoIds($channel['youtube_id'], $nextToken);
+            [$ids, $token] = $this->youtubeService->findVideoIds($channel['youtube_id'], [], $nextToken);
+            if (empty($ids)) {
+                break;
+            }
             $videos = $this->youtubeService->findVideoInfoByIds($ids, $channel['id']);
             $items = $this->fetchVideoData($videos);
             $itemCount += count($items);

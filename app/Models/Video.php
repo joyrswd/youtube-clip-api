@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
+use Carbon\Carbon;
+use DateTimeInterface;
 
 class Video extends Model
 {
@@ -22,6 +24,15 @@ class Video extends Model
         'etag',
     ];
 
+    protected $casts = [
+        'published_at' => 'datetime',
+    ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->setTimezone('Asia/Tokyo')->toIso8601String();
+    }    
+
     public function channel()
     {
         return $this->belongsTo(Channel::class);
@@ -30,6 +41,20 @@ class Video extends Model
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($video) {
+            // videosでpublished_atの最大値を取得
+            $channel = $video->channel;
+            $latest = $channel->videos()->max('published_at');
+            // 追加された動画のpublished_atが最新の場合、new_stocked_atを更新
+            if (empty($channel->new_stocked_at) || $channel->published_at < $latest) {
+                $channel->new_stocked_at = $latest;
+                $channel->save();
+            }
+        });
     }
 
     public function toSearchableArray()
@@ -60,7 +85,7 @@ class Video extends Model
 
     private function convertToTime($duration)
     {
-        $start = new \DateTime('@0');
+        $start = Carbon::createFromTime(0, 0, 0);
         $start->modify("+ {$duration} seconds");
         return ($duration >= 3600) ? $start->format('H:i:s') : $start->format('i:s');
     }

@@ -7,6 +7,7 @@ use Google\Service\YouTube\Resource\Search;
 use Google\Service\YouTube\SearchListResponse;
 use Google\Service\YouTube\SearchResult;
 use Google\Service\YouTube\ResourceId;
+use Illuminate\Support\Facades\Log;
 
 class YoutubeSearchRepository
 {
@@ -24,13 +25,21 @@ class YoutubeSearchRepository
         $this->search = $youtube->search;
     }
 
-    public function listSearch(string $id, ?string $token = null) : SearchListResponse
+    public function listSearch(string $id, ?array $conditions = [], ?string $token = null) : ?SearchListResponse
     {
         $this->params['channelId'] = $id;
+        foreach ($conditions as $key => $value) {
+            $this->params[$key] = $value;
+        }
         if ($token) {
             $this->params['pageToken'] = $token;
         }
-        return $this->search->listSearch('id', $this->params);
+        try {
+            return $this->search->listSearch('id', $this->params);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return null;
+        }
     }
 
     public function getPageToken(SearchListResponse $response) : ?string
