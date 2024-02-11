@@ -22,6 +22,7 @@ tag ||--o{ tag_video : ""
 | id         | INT          | PK             | チャンネルID   |
 | youtube_id | VARCHAR(255) | UK, NOT NULL | youtube上のID  |
 | title      | VARCHAR(255) | NOT NULL       | チャンネル名   |
+| new_stocked_at | timestamp | DEFAULT NULL  | 最新の動画公開日時（videos連動） |
 | created_at | timestamp    | DEFAULT current_timestamp   | 作成日時     |
 | updated_at | timestamp    | DEFAULT NULL   | 更新日時     |
 | deleted_at | timestamp    | DEFAULT NULL   | 削除日時     |
