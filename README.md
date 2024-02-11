@@ -20,7 +20,9 @@ Meilisearchで全文検索を行えるようにするAPI。
 ## システム構成  
 
 ```mermaid
+
 graph LR
+
     subgraph Youtube
         ChannelA
         ~~~ChannelB
@@ -30,10 +32,10 @@ graph LR
     C[(MariaDB)]
     D[(MeiliSearch)]
     E(PHP API)
-    subgraph web[Front（IPFS予定）]
-        F(Vue + HTML + CSS)
+    subgraph web[Front *IPFS予定]
+        F(Vue,HTML,CSS)
     end
-    G(Node.js)
+    G(Nodejs)
     B --> Youtube
     B --> C
     B --> D
